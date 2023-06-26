@@ -6,7 +6,7 @@ from pygame.math import Vector2
 
 class Snake:
     def __init__(self):
-        self.body = [Vector2(5, 10), Vector2(6, 10), Vector2(7, 10)]
+        self.body = [Vector2(5, 10), Vector2(4, 10), Vector2(3, 10)]
         self.direction = Vector2(1, 0)
         self.new_block = False
 
@@ -51,6 +51,7 @@ class Main:
     def update(self):
         self.snake.move()
         self.check_collision()
+        self.check_fail()
 
     def draw(self):
         self.snake.draw()
@@ -60,6 +61,18 @@ class Main:
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize()
             self.snake.add_block()
+
+    def check_fail(self):
+        if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number:
+            self.game_over()
+
+        for block in self.snake.body[1:]:
+            if block == self.snake.body[0]:
+                self.game_over()
+
+    def game_over(self):
+        pygame.quit()
+        sys.exit()
 
 
 pygame.init()
