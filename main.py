@@ -28,6 +28,9 @@ class Snake:
         self.body_br = pygame.image.load('graphics/body_br.png').convert_alpha()
         self.body_bl = pygame.image.load('graphics/body_bl.png').convert_alpha()
 
+        self.eat_sound = pygame.mixer.Sound('sound/crunch.wav')
+        self.eat_sound.set_volume(0.5)
+
     def draw(self):
         for index, block in enumerate(self.body):
             block_rectangle = pygame.Rect(block.x * cell_size, block.y * cell_size, cell_size, cell_size)
@@ -91,6 +94,9 @@ class Snake:
     def add_block(self):
         self.new_block = True
 
+    def play_eat_sound(self):
+        self.eat_sound.play()
+
 
 class Fruit:
     def __init__(self):
@@ -121,11 +127,13 @@ class Main:
         self.draw_grass()
         self.snake.draw()
         self.fruit.draw()
+        self.draw_score()
 
     def check_collision(self):
         if self.fruit.pos == self.snake.body[0]:
             self.fruit.randomize()
             self.snake.add_block()
+            self.snake.play_eat_sound()
 
     def check_fail(self):
         if not 0 <= self.snake.body[0].x < cell_number or not 0 <= self.snake.body[0].y < cell_number:
@@ -153,6 +161,17 @@ class Main:
                         grass_rectangle = pygame.Rect(col * cell_size, row * cell_size, cell_size, cell_size)
                         pygame.draw.rect(screen, grass_color, grass_rectangle)
 
+    def draw_score(self):
+        score_text = str(len(self.snake.body) - 3)
+        score_surface = game_font.render(score_text, True, (56, 74, 12))
+        score_x = int(cell_size * cell_number - 60)
+        score_y = int(cell_size * cell_number - 40)
+        score_rectangle = score_surface.get_rect(center=(score_x, score_y))
+        screen.blit(score_surface, score_rectangle)
+
+
+# Fixes sound delay because of buffering
+pygame.mixer.pre_init(44100, -16, 2, 512)
 
 pygame.init()
 
@@ -162,8 +181,7 @@ screen = pygame.display.set_mode((cell_number * cell_size, cell_number * cell_si
 clock = pygame.time.Clock()
 
 fungi = pygame.image.load('graphics/fungi.png').convert_alpha()
-
-surface = pygame.Surface((100, 200))
+game_font = pygame.font.Font('font/PoetsenOne-Regular.ttf', 25)
 
 main = Main()
 
